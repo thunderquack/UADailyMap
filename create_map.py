@@ -178,33 +178,30 @@ def display_geo_data(gf, map_obj, weeks_limit, latest_day):
 repo_url = "https://github.com/owlmaps/UAControlMapBackups.git"
 ok = False
 
-with tempfile.TemporaryDirectory() as temp_dir:
-    print("Временная папка создана:", temp_dir)
-    try:
-        subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
-        print("Репозиторий успешно клонирован.")
-        folder_path = temp_dir
+temp_dir = tempfile.TemporaryDirectory()
 
-        all_files = [f for f in os.listdir(folder_path) if f.endswith('.kmz')]
+print("Временная папка создана:", temp_dir)
+try:
+    subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
+    print("Репозиторий успешно клонирован.")
+    folder_path = temp_dir
+    all_files = [f for f in os.listdir(folder_path) if f.endswith('.kmz')]
+    # Сортируем имена файлов
+    sorted_files = sorted(all_files)
+    # Берем файл с последней датой
+    latest_file = os.path.join(folder_path, sorted_files[-1])
+    shutil.copy(latest_file, '.')
+    latest_file = os.path.basename(latest_file)
+    pre_latest_file = os.path.join(folder_path, sorted_files[-2])
+    shutil.copy(pre_latest_file, '.')
+    pre_latest_file = os.path.basename(pre_latest_file)
+    print(f"Файл {latest_file} был скопирован в текущую директорию.")
+    print(f"Файл {pre_latest_file} был скопирован в текущую директорию.")
+    ok = True
+except subprocess.CalledProcessError as e:
+    print("Произошла ошибка при клонировании репозитория.")
 
-        # Сортируем имена файлов
-        sorted_files = sorted(all_files)
-
-        # Берем файл с последней датой
-        latest_file = os.path.join(folder_path, sorted_files[-1])
-        shutil.copy(latest_file, '.')
-        latest_file = os.path.basename(latest_file)
-
-        pre_latest_file = os.path.join(folder_path, sorted_files[-2])
-        shutil.copy(pre_latest_file, '.')
-        pre_latest_file = os.path.basename(pre_latest_file)
-
-        print(f"Файл {latest_file} был скопирован в текущую директорию.")
-        print(f"Файл {pre_latest_file} был скопирован в текущую директорию.")
-        ok = True
-
-    except subprocess.CalledProcessError as e:
-        print("Произошла ошибка при клонировании репозитория.")
+temp_dir.cleanup()
 
 if not ok:
     exit(999)

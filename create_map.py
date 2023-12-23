@@ -158,6 +158,7 @@ def add_marker(row, map_obj, weeks_limit, latest_date, color):
 
 
 def display_geo_data(gf, map_obj, weeks_limit, latest_day):
+    print(gf.info())
     for idx, row in gf.iterrows():
         style_function = globals().get(row['fill'], None)
         if row['geometry'].geom_type == 'Polygon':

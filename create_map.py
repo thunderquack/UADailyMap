@@ -233,9 +233,6 @@ for layer in fiona.listlayers(temp_filepath, driver=driver):
 # Объединение всех слоев в один GeoDataFrame
 gdf = pd.concat(all_layers, ignore_index=True)
 
-print(gdf.info())
-print(gdf[40])
-
 # Очистка и удаление временного файла и директории
 temp_dir.cleanup()
 

@@ -208,7 +208,7 @@ with tempfile.TemporaryDirectory() as temp_dir:
 if not ok:
     exit(999)
 
-driver = 'LIBKML'
+driver = 'KML'
 
 fiona.drvsupport.supported_drivers[driver] = 'rw'
 

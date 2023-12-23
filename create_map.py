@@ -10,6 +10,7 @@ import folium
 from folium.plugins import BeautifyIcon
 from datetime import datetime
 import re
+import glob
 
 
 def calculate_opacity(date_str, weeks_limit):
@@ -156,6 +157,7 @@ def add_marker(row, map_obj, weeks_limit, latest_date, color):
         convert_urls_to_links(row['description'])
     ).add_to(map_obj)
 
+
 def display_geo_data(gf, map_obj, weeks_limit, latest_day):
     for idx, row in gf.iterrows():
         style_function = globals().get(row['fill'], None)
@@ -171,6 +173,7 @@ def display_geo_data(gf, map_obj, weeks_limit, latest_day):
             else:
                 add_marker(row, map_obj, weeks_limit, latest_day, 'blue')
     return map_obj
+
 
 repo_url = "https://github.com/owlmaps/UAControlMapBackups.git"
 ok = False
@@ -334,3 +337,8 @@ folium.TileLayer(
 folium.LayerControl().add_to(m)
 
 html = m.get_root().render()
+index_file = os.path.join('docs', 'index.html')
+with open(index_file, 'w', encoding='utf-8') as file:
+    file.write(html)
+for kmz_file in glob.glob('*.kmz'):
+    os.remove(kmz_file)

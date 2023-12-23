@@ -69,7 +69,7 @@ def convert_urls_to_links(text):
     # Для каждого URL заменяем его на текстовое поле с этим URL
     for url in urls:
         #replacement = f'<div style="width:330px;"><input type="text" value="{url}" onclick="this.select();" style="width:100%; border: none;" readonly></div>'
-        replacement = f'<div style="width:330px;"><a href="{url}" target="_blank" /></div>'
+        replacement = f'<div style="width:330px;"><a href="{url}" target="_blank">{url}</a></div>'
         text = text.replace(url, replacement)
 
     return text

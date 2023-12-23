@@ -179,10 +179,12 @@ repo_url = "https://github.com/owlmaps/UAControlMapBackups.git"
 ok = False
 
 temp_dir = tempfile.TemporaryDirectory()
+#temp_dir = 'tmp'
 
 print("Временная папка создана:", temp_dir)
 try:
-    subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
+    if not os.path.exists(temp_dir):
+        subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
     print("Репозиторий успешно клонирован.")
     folder_path = temp_dir
     all_files = [f for f in os.listdir(folder_path) if f.endswith('.kmz')]
@@ -201,15 +203,16 @@ try:
 except subprocess.CalledProcessError as e:
     print("Произошла ошибка при клонировании репозитория.")
 
-temp_dir.cleanup()
+if not temp_dir=='tmp':
+    temp_dir.cleanup()
 
 if not ok:
     exit(999)
 
-driver = 'KML'
+driver = 'LIBKML'
 
 fiona.drvsupport.supported_drivers[driver] = 'rw'
-fiona.drvsupport.supported_drivers['LIBKML'] = 'rw'
+#fiona.drvsupport.supported_drivers['LIBKML'] = 'rw'
 
 # Создание временного файла
 temp_dir = tempfile.TemporaryDirectory()

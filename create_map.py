@@ -222,7 +222,7 @@ with zipfile.ZipFile(latest_file, 'r') as zip_ref:
 
 # Чтение KML из временного файла с помощью geopandas
 all_layers = []
-for layer in fiona.listlayers(temp_filepath, driver="KML"):
+for layer in fiona.listlayers(temp_filepath, driver="LIBKML"):
     gdf_layer = gpd.read_file(temp_filepath, layer=layer)
     all_layers.append(gdf_layer)
 
@@ -244,7 +244,7 @@ with zipfile.ZipFile(pre_latest_file, 'r') as zip_ref:
 
 # Чтение KML из временного файла с помощью geopandas
 pre_all_layers = []
-for layer in fiona.listlayers(temp_filepath, driver="KML"):
+for layer in fiona.listlayers(temp_filepath, driver="LIBKML"):
     gdf_layer = gpd.read_file(temp_filepath, layer=layer)
     pre_all_layers.append(gdf_layer)
 

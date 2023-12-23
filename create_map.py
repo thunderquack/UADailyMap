@@ -164,7 +164,6 @@ def add_marker(row, map_obj, weeks_limit, latest_date, color):
 
 
 def display_geo_data(gf, map_obj, weeks_limit, latest_day):
-    print(gf.info())
     for idx, row in gf.iterrows():
         style_function = globals().get(row['fill'], None)
         if row['geometry'].geom_type == 'Polygon':
@@ -192,10 +191,11 @@ try:
     if type(temp_dir) == str:
         if not os.path.exists(temp_dir):
             subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
+            folder_path = temp_dir
     else:
         subprocess.run(["git", "clone", repo_url, temp_dir.name], check=True)
-    print("Репозиторий успешно клонирован.")
-    folder_path = temp_dir
+        folder_path = temp_dir.name
+    print("Репозиторий успешно клонирован.")    
     all_files = [f for f in os.listdir(folder_path) if f.endswith('.kmz')]
     # Сортируем имена файлов
     sorted_files = sorted(all_files)

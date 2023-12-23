@@ -337,18 +337,18 @@ m = folium.Map(tiles=None, zoom_start=5, location=[50, 37], control_scale=True)
 # Добавляем ваши геоданные
 display_geo_data(gf, m, weeks_limit, latest_date)
 
-# Добавляем тайлы OpenTopoMap
-folium.TileLayer(
-    tiles="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-    attr="© OpenTopoMap contributors, © OpenStreetMap contributors",
-    name='OpenTopoMap'
-).add_to(m)
-
 # Добавляем тайлы google
 folium.TileLayer(
     tiles="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
     attr="Google satellite",
     name="Google satellite"
+).add_to(m)
+
+# Добавляем тайлы OpenTopoMap
+folium.TileLayer(
+    tiles="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attr="© OpenTopoMap contributors, © OpenStreetMap contributors",
+    name='OpenTopoMap'
 ).add_to(m)
 
 # Добавляем контроллер для переключения тайлов

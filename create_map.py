@@ -2,6 +2,10 @@ import os
 import subprocess
 import tempfile
 import shutil
+import zipfile
+import pandas as pd
+import fiona
+import geopandas as gpd
 
 
 repo_url = "https://github.com/owlmaps/UAControlMapBackups.git"
@@ -35,3 +39,46 @@ with tempfile.TemporaryDirectory() as temp_dir:
 
 if not ok:
     exit(999)
+
+fiona.drvsupport.supported_drivers['LIBKML'] = 'rw'
+# Создание временного файла
+temp_dir = tempfile.TemporaryDirectory()
+temp_filepath = os.path.join(temp_dir.name, 'temp_kml.kml')
+
+# Распаковка KMZ во временный файл
+with zipfile.ZipFile(latest_file, 'r') as zip_ref:
+    kml_filename = zip_ref.namelist()[0]
+    zip_ref.extract(kml_filename, temp_dir.name)
+    os.rename(os.path.join(temp_dir.name, kml_filename), temp_filepath)
+
+# Чтение KML из временного файла с помощью geopandas
+all_layers = []
+for layer in fiona.listlayers(temp_filepath, driver="KML"):
+    gdf_layer = gpd.read_file(temp_filepath, layer=layer)
+    all_layers.append(gdf_layer)
+
+# Объединение всех слоев в один GeoDataFrame
+gdf = pd.concat(all_layers, ignore_index=True)
+
+# Очистка и удаление временного файла и директории
+temp_dir.cleanup()
+
+# Создание временного файла
+temp_dir = tempfile.TemporaryDirectory()
+temp_filepath = os.path.join(temp_dir.name, 'temp_kml.kml')
+
+# Распаковка KMZ во временный файл
+with zipfile.ZipFile(pre_latest_file, 'r') as zip_ref:
+    kml_filename = zip_ref.namelist()[0]
+    zip_ref.extract(kml_filename, temp_dir.name)
+    os.rename(os.path.join(temp_dir.name, kml_filename), temp_filepath)
+
+# Чтение KML из временного файла с помощью geopandas
+pre_all_layers = []
+for layer in fiona.listlayers(temp_filepath, driver="KML"):
+    gdf_layer = gpd.read_file(temp_filepath, layer=layer)
+    pre_all_layers.append(gdf_layer)
+
+pre_frontline = pre_all_layers[0]
+
+pre_frontline['Name'] = "Frontline -1"

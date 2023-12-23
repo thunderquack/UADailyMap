@@ -210,7 +210,7 @@ if not ok:
 
 driver = 'LIBKML'
 
-gpd.io.file.fiona.drvsupport.supported_drivers[driver] = 'rw'
+fiona.drvsupport.supported_drivers[driver] = 'rw'
 
 # Создание временного файла
 temp_dir = tempfile.TemporaryDirectory()

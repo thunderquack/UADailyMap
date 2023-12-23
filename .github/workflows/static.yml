@@ -40,10 +40,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt 
 
-      - name: Check GDAL/Fiona supported drivers
-        run: |
-          python -c "import fiona; print(fiona.supported_drivers)"
-
       - name: Run create_map.py
         run: python create_map.py
 

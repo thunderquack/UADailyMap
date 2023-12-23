@@ -26,9 +26,11 @@ with tempfile.TemporaryDirectory() as temp_dir:
         # Берем файл с последней датой
         latest_file = os.path.join(folder_path, sorted_files[-1])
         shutil.copy(latest_file, '.')
+        latest_file = os.path.basename(latest_file)
 
         pre_latest_file = os.path.join(folder_path, sorted_files[-2])
         shutil.copy(pre_latest_file, '.')
+        pre_latest_file = os.path.basename(pre_latest_file)
         
         print(f"Файл {latest_file} был скопирован в текущую директорию.")
         print(f"Файл {pre_latest_file} был скопирован в текущую директорию.")

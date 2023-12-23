@@ -179,11 +179,14 @@ repo_url = "https://github.com/owlmaps/UAControlMapBackups.git"
 ok = False
 
 temp_dir = tempfile.TemporaryDirectory()
-#temp_dir = 'tmp'
+temp_dir = 'tmp'
 
 print("Временная папка создана:", temp_dir)
 try:
-    if not os.path.exists(temp_dir):
+    if type(temp_dir) == str:
+        if not os.path.exists(temp_dir):
+            subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
+    else:
         subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
     print("Репозиторий успешно клонирован.")
     folder_path = temp_dir

@@ -56,6 +56,12 @@ def convert_urls_to_copy_buttons(text):
 
 
 def convert_urls_to_links(text):
+    adjusted_pattern = r"Description: (.+<br><br>http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)<br>"
+    
+    # Поиск и извлечение соответствующей части текста с использованием отрегулированного шаблона
+    adjusted_match = re.search(adjusted_pattern, text)
+    text = adjusted_match.group(1) if adjusted_match else "No match found"
+
     # Находим все URL в тексте
     urls = re.findall(
         r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', text)
@@ -139,7 +145,7 @@ def add_marker(row, map_obj, weeks_limit, latest_date, color):
             location=[y, x],
             icon=icon_square,
             popup='<b>'+date_str + '</b> ' +
-            convert_urls_to_links(row['description'])
+            convert_urls_to_links(row['Description'])
         ).add_to(map_obj)
         return
     icon_circle = BeautifyIcon(
@@ -153,7 +159,7 @@ def add_marker(row, map_obj, weeks_limit, latest_date, color):
         icon=icon_circle,
         opacity=calculate_opacity(date_str, weeks_limit),
         popup='<b>'+date_str + '</b> ' +
-        convert_urls_to_links(row['description'])
+        convert_urls_to_links(row['Description'])
     ).add_to(map_obj)
 
 
@@ -168,7 +174,7 @@ def display_geo_data(gf, map_obj, weeks_limit, latest_day):
             folium.GeoJson(row['geometry'],
                            style_function=style_function, name=row['Name']).add_to(map_obj)
         elif row['geometry'].geom_type == 'Point':
-            if row['code'] == 'RU':
+            if row['code'].upper() == 'RU':
                 add_marker(row, map_obj, weeks_limit, latest_day, 'red')
             else:
                 add_marker(row, map_obj, weeks_limit, latest_day, 'blue')
@@ -212,7 +218,7 @@ if not temp_dir=='tmp':
 if not ok:
     exit(999)
 
-driver = 'LIBKML'
+driver = 'KML'
 
 fiona.drvsupport.supported_drivers[driver] = 'rw'
 #fiona.drvsupport.supported_drivers['LIBKML'] = 'rw'
@@ -272,6 +278,9 @@ matches = gdf['Name'].str.extract(pattern)
 
 # Извлекаем даты и преобразуем их в формат datetime
 matches[0] = pd.to_datetime(matches[0], format='%y/%m/%d')
+
+gdf['date'] = matches[0]
+gdf['code'] = matches[1]
 
 # Устанавливаем диапазон дат
 end_date = pd.Timestamp.now()

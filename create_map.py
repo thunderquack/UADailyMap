@@ -193,7 +193,7 @@ try:
         if not os.path.exists(temp_dir):
             subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
     else:
-        subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
+        subprocess.run(["git", "clone", repo_url, temp_dir.name], check=True)
     print("Репозиторий успешно клонирован.")
     folder_path = temp_dir
     all_files = [f for f in os.listdir(folder_path) if f.endswith('.kmz')]

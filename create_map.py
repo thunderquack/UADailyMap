@@ -252,6 +252,8 @@ pre_frontline = pre_all_layers[0]
 
 pre_frontline['Name'] = "Frontline -1"
 
+temp_dir.cleanup()
+
 # Количество недель
 weeks_limit = 1
 

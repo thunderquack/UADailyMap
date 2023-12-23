@@ -44,8 +44,8 @@ jobs:
         run: |
           python -c "import fiona; print(fiona.supported_drivers)"
 
-      #- name: Run create_map.py
-      #  run: python create_map.py
+      - name: Run create_map.py
+        run: python create_map.py
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

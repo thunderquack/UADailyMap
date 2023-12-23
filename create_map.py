@@ -12,7 +12,6 @@ from datetime import datetime
 import re
 import glob
 
-
 def calculate_opacity(date_str, weeks_limit):
     # Получаем текущую дату
     current_date = datetime.now()

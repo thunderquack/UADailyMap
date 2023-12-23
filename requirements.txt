@@ -26,4 +26,3 @@ six==1.16.0
 tzdata==2023.3
 urllib3==2.1.0
 xyzservices==2023.10.1
-GDAL==3.8.2

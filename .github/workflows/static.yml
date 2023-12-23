@@ -42,6 +42,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libkml-dev gdal-bin python3-gdal
         
+      - name: Install GDAL
+        run: pip install GDAL
+
       - name: Install dependencies
         run: pip install -r requirements.txt 
 

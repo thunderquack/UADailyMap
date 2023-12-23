@@ -56,7 +56,7 @@ def convert_urls_to_copy_buttons(text):
 
 
 def convert_urls_to_links(text):
-    adjusted_pattern = r"Description: (.+<br><br>http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)<br>"
+    adjusted_pattern = r"Description: (.+<br>http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)<br>"
     
     # Поиск и извлечение соответствующей части текста с использованием отрегулированного шаблона
     adjusted_match = re.search(adjusted_pattern, text)
@@ -185,7 +185,7 @@ repo_url = "https://github.com/owlmaps/UAControlMapBackups.git"
 ok = False
 
 temp_dir = tempfile.TemporaryDirectory()
-temp_dir = 'tmp'
+#temp_dir = 'tmp'
 
 print("Временная папка создана:", temp_dir)
 try:

@@ -211,6 +211,7 @@ if not ok:
 driver = 'KML'
 
 fiona.drvsupport.supported_drivers[driver] = 'rw'
+fiona.drvsupport.supported_drivers['LIBKML'] = 'rw'
 
 # Создание временного файла
 temp_dir = tempfile.TemporaryDirectory()

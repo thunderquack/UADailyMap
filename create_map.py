@@ -413,7 +413,7 @@ m = folium.Map(tiles=None, zoom_start=5, location=[50, 37], control_scale=True)
 # Добавляем ваши геоданные
 display_geo_data(gf, m, weeks_limit, latest_date)
 
-today = datetime.now().strftime('%y-%m-%d')
+today = datetime.now().strftime('%Y-%m-%d')
 
 
 if add_today:

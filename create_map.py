@@ -7,10 +7,14 @@ import pandas as pd
 import fiona
 import geopandas as gpd
 import folium
-from folium.plugins import BeautifyIcon
-from datetime import datetime
 import re
 import glob
+import urllib.parse
+import requests
+from io import StringIO
+from folium.plugins import BeautifyIcon
+from folium.features import DivIcon
+from datetime import datetime
 
 def calculate_opacity(date_str, weeks_limit):
     # Получаем текущую дату
@@ -137,7 +141,7 @@ def add_marker(row, map_obj, weeks_limit, latest_date, color):
     date_str = extract_and_convert_date(row['Name'])
     if date_str == latest_date:
         icon_square = BeautifyIcon(
-            icon_shape='rectangle-dot',
+            icon_shape='circle-dot',
             border_color=color,
             border_width=4,
         )
@@ -150,7 +154,7 @@ def add_marker(row, map_obj, weeks_limit, latest_date, color):
         ).add_to(map_obj)
         return
     icon_circle = BeautifyIcon(
-        icon_shape='circle-dot',
+        icon_shape='rectangle-dot',
         border_color=color,
         border_width=4,
     )
@@ -180,19 +184,48 @@ def display_geo_data(gf, map_obj, weeks_limit, latest_day):
                 add_marker(row, map_obj, weeks_limit, latest_day, 'blue')
     return map_obj
 
+def display_today_data(today_data, map_obj):
+    for idx, row in today_data.iterrows():
+        x = row['Latitude']
+        y = row['Longitude']
+        text = row[column_name_text]
+        link = row[column_name_link]
+        if row[column_name_flag].upper()=='RU':
+            color = 'red'
+        else:
+            color = 'blue'
+        custom_icon = DivIcon(
+            icon_size=(10,10),  # Устанавливаем размер иконки
+            icon_anchor=(8,8),  # Центрируем иконку
+            html='<div style="width: 10px; height: 10px; border: 3px solid {color}; '
+                 'border-radius: 50%; background: transparent;"></div>'.format(color=color)
+        )
+        folium.Marker(
+            show=False,
+            location=[x, y],
+            icon=custom_icon,
+            popup='<b>'+ today + '</b> ' + text + '<br>' + f'<div style="width:330px;"><a href="{link}">{link}</a></div>'            
+        ).add_to(map_obj)
+
+    return map_obj
+
 
 repo_url = "https://github.com/owlmaps/UAControlMapBackups.git"
+doc_id = '1u0N-CJNyuB4oSRwHpPkI27bAzwjCfBbAPUH4DKO7gqY'
+page_name = 'Logs 2023'
+csv_url = f'https://docs.google.com/spreadsheets/d/{doc_id}/gviz/tq?tqx=out:csv&sheet={urllib.parse.quote(page_name)}'
+
 ok = False
 
 temp_dir = tempfile.TemporaryDirectory()
-#temp_dir = 'tmp'
+temp_dir = 'tmp'
 
 print("Временная папка создана:", temp_dir)
 try:
     if type(temp_dir) == str:
+        folder_path = temp_dir
         if not os.path.exists(temp_dir):
-            subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
-            folder_path = temp_dir
+            subprocess.run(["git", "clone", "--depth", "1", repo_url, temp_dir], check=True)
     else:
         subprocess.run(["git", "clone", repo_url, temp_dir.name], check=True)
         folder_path = temp_dir.name
@@ -218,6 +251,48 @@ if not temp_dir=='tmp':
 
 if not ok:
     exit(999)
+
+add_today = False
+response = requests.get(csv_url)
+
+if response.status_code == 200:
+    add_today = True
+    # Преобразуйте текст ответа в CSV
+    operative_data = pd.read_csv(StringIO(response.text))
+    column_name_date = operative_data.columns.to_list()[0]
+    column_name_event = operative_data.columns.to_list()[3]
+    column_name_flag = operative_data.columns.to_list()[4]
+    column_name_text = operative_data.columns.to_list()[5]
+    column_name_link = operative_data.columns.to_list()[6]
+    # Выведите первые строки DataFrame для проверки
+    selected_columns = [
+        column_name_date,  # Date column
+        column_name_event,  # Event column
+        column_name_flag,  # Flag column
+        column_name_text,  # Text column
+        column_name_link   # Link column
+    ]
+    operative_data = operative_data[selected_columns]
+    today = datetime.now().strftime('%d/%m')
+    operative_data = operative_data[operative_data[column_name_date] == today]
+    # Для колонки Flag заменим любые значения, содержащие "Ru" на "RU" и "Ua" на "UA"
+    operative_data[column_name_flag] = operative_data[column_name_flag].str.replace(r'.*Ru.*', 'RU', regex=True)
+    operative_data[column_name_flag] = operative_data[column_name_flag].str.replace(r'.*Ua.*', 'UA', regex=True)
+    coordinate_columns = operative_data[column_name_event].str.split(', ', n=1, expand=True)
+    coordinate_columns.columns = ['Latitude', 'Longitude'] if coordinate_columns.shape[1] == 2 else ['Coordinates', 'Extra']
+    operative_data = pd.concat([operative_data, coordinate_columns], axis=1)
+    # Удалим старую колонку Event, теперь, когда у нас есть отдельные колонки для широты и долготы
+    operative_data.drop(column_name_event, axis=1, inplace=True)
+    # Удаление строк, где есть пустые поля или поля с whitespace
+    operative_data.replace('', pd.NA, inplace=True)  # Заменяем пустые строки на NA для последующего удаления
+    operative_data.replace(r'^\s*$', pd.NA, regex=True, inplace=True)  # Заменяем строки только с whitespace на NA
+    operative_data.dropna(how='any', inplace=True)  # Удаляем строки с NA значениями
+
+    # Теперь operative_data содержит только нужные колонки и строки без пустых значений
+    operative_data.reset_index(drop=True, inplace=True)  # Сбросим индекс для красоты
+
+else:
+    print("Ошибка при загрузке данных: Статус", response.status_code)
 
 driver = 'KML'
 
@@ -337,6 +412,12 @@ m = folium.Map(tiles=None, zoom_start=5, location=[50, 37], control_scale=True)
 
 # Добавляем ваши геоданные
 display_geo_data(gf, m, weeks_limit, latest_date)
+
+today = datetime.now().strftime('%Y-%m-%d')
+
+
+if add_today:
+    display_today_data(operative_data, m)
 
 # Добавляем тайлы google
 folium.TileLayer(

@@ -13,6 +13,7 @@ import urllib.parse
 import requests
 from io import StringIO
 from folium.plugins import BeautifyIcon
+from folium.features import DivIcon
 from datetime import datetime
 
 def calculate_opacity(date_str, weeks_limit):
@@ -140,7 +141,7 @@ def add_marker(row, map_obj, weeks_limit, latest_date, color):
     date_str = extract_and_convert_date(row['Name'])
     if date_str == latest_date:
         icon_square = BeautifyIcon(
-            icon_shape='rectangle-dot',
+            icon_shape='circle-dot',
             border_color=color,
             border_width=4,
         )
@@ -153,7 +154,7 @@ def add_marker(row, map_obj, weeks_limit, latest_date, color):
         ).add_to(map_obj)
         return
     icon_circle = BeautifyIcon(
-        icon_shape='circle-dot',
+        icon_shape='rectangle-dot',
         border_color=color,
         border_width=4,
     )
@@ -193,16 +194,16 @@ def display_today_data(today_data, map_obj):
             color = 'red'
         else:
             color = 'blue'
-        icon_square = BeautifyIcon(
-            icon_shape='doughnut',
-            border_color=color,
-            border_width=1,
-            inner_icon_style='width: 2px; height: 2px;'
+        custom_icon = DivIcon(
+            icon_size=(10,10),  # Устанавливаем размер иконки
+            icon_anchor=(8,8),  # Центрируем иконку
+            html='<div style="width: 10px; height: 10px; border: 3px solid {color}; '
+                 'border-radius: 50%; background: transparent;"></div>'.format(color=color)
         )
         folium.Marker(
             show=False,
             location=[x, y],
-            icon=icon_square,
+            icon=custom_icon,
             popup='<b>'+ today + '</b> ' + text + '<br>' + f'<div style="width:330px;"><a href="{link}">{link}</a></div>'            
         ).add_to(map_obj)
 

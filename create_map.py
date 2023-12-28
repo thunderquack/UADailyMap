@@ -204,7 +204,7 @@ def display_today_data(today_data, map_obj):
             show=False,
             location=[x, y],
             icon=custom_icon,
-            popup='<b>'+ today + '</b> ' + text + '<br>' + f'<div style="width:330px;"><a href="{link}">{link}</a></div>'            
+            popup='<b>'+ today + '</b> ' + text + '<br>' + f'<div style="width:330px;"><a href="{link}" target="_blank">{link}</a></div>'            
         ).add_to(map_obj)
 
     return map_obj

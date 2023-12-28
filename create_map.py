@@ -218,7 +218,7 @@ csv_url = f'https://docs.google.com/spreadsheets/d/{doc_id}/gviz/tq?tqx=out:csv&
 ok = False
 
 temp_dir = tempfile.TemporaryDirectory()
-temp_dir = 'tmp'
+#temp_dir = 'tmp'
 
 print("Временная папка создана:", temp_dir)
 try:

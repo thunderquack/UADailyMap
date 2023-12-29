@@ -275,18 +275,25 @@ if response.status_code == 200:
     operative_data = operative_data[selected_columns]
     today = datetime.now().strftime('%d/%m')
     operative_data = operative_data[operative_data[column_name_date] == today]
-    # Для колонки Flag заменим любые значения, содержащие "Ru" на "RU" и "Ua" на "UA"
-    operative_data[column_name_flag] = operative_data[column_name_flag].str.replace(r'.*Ru.*', 'RU', regex=True)
-    operative_data[column_name_flag] = operative_data[column_name_flag].str.replace(r'.*Ua.*', 'UA', regex=True)
-    coordinate_columns = operative_data[column_name_event].str.split(', ', n=1, expand=True)
-    coordinate_columns.columns = ['Latitude', 'Longitude'] if coordinate_columns.shape[1] == 2 else ['Coordinates', 'Extra']
-    operative_data = pd.concat([operative_data, coordinate_columns], axis=1)
-    # Удалим старую колонку Event, теперь, когда у нас есть отдельные колонки для широты и долготы
-    operative_data.drop(column_name_event, axis=1, inplace=True)
     # Удаление строк, где есть пустые поля или поля с whitespace
     operative_data.replace('', pd.NA, inplace=True)  # Заменяем пустые строки на NA для последующего удаления
     operative_data.replace(r'^\s*$', pd.NA, regex=True, inplace=True)  # Заменяем строки только с whitespace на NA
     operative_data.dropna(how='any', inplace=True)  # Удаляем строки с NA значениями
+    if operative_data.shape[0]!=0:
+        # Для колонки Flag заменим любые значения, содержащие "Ru" на "RU" и "Ua" на "UA"
+        operative_data[column_name_flag] = operative_data[column_name_flag].str.replace(r'.*Ru.*', 'RU', regex=True)
+        operative_data[column_name_flag] = operative_data[column_name_flag].str.replace(r'.*Ua.*', 'UA', regex=True)
+        coordinate_columns = operative_data[column_name_event].str.split(', ', n=1, expand=True)
+        if coordinate_columns.shape[1] == 2:
+            coordinate_columns.columns = ['Latitude', 'Longitude']
+            operative_data = pd.concat([operative_data, coordinate_columns], axis=1)
+        else:
+            operative_data['Delete'] = coordinate_columns.apply(lambda x: x.isnull().any(), axis=1)
+        operative_data = operative_data[operative_data['Delete'] != True]
+        operative_data.drop(columns=['Delete'], errors='ignore', inplace=True)
+        operative_data = pd.concat([operative_data, coordinate_columns], axis=1)
+        # Удалим старую колонку Event, теперь, когда у нас есть отдельные колонки для широты и долготы
+        operative_data.drop(column_name_event, axis=1, inplace=True)
 
     # Теперь operative_data содержит только нужные колонки и строки без пустых значений
     operative_data.reset_index(drop=True, inplace=True)  # Сбросим индекс для красоты

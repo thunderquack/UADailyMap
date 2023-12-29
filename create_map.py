@@ -287,8 +287,9 @@ if response.status_code == 200:
         if coordinate_columns.shape[1] == 2:
             coordinate_columns.columns = ['Latitude', 'Longitude']
             operative_data = pd.concat([operative_data, coordinate_columns], axis=1)
+            operative_data['Delete'] = False
         else:
-            operative_data['Delete'] = coordinate_columns.apply(lambda x: x.isnull().any(), axis=1)
+            operative_data['Delete'] = True
         operative_data = operative_data[operative_data['Delete'] != True]
         operative_data.drop(columns=['Delete'], errors='ignore', inplace=True)
         operative_data = pd.concat([operative_data, coordinate_columns], axis=1)

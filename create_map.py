@@ -292,7 +292,6 @@ if response.status_code == 200:
             operative_data['Delete'] = True
         operative_data = operative_data[operative_data['Delete'] != True]
         operative_data.drop(columns=['Delete'], errors='ignore', inplace=True)
-        operative_data = pd.concat([operative_data, coordinate_columns], axis=1)
         # Удалим старую колонку Event, теперь, когда у нас есть отдельные колонки для широты и долготы
         operative_data.drop(column_name_event, axis=1, inplace=True)
 

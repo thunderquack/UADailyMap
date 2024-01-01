@@ -186,26 +186,29 @@ def display_geo_data(gf, map_obj, weeks_limit, latest_day):
 
 def display_today_data(today_data, map_obj):
     for idx, row in today_data.iterrows():
-        x = row['Latitude']
-        y = row['Longitude']
-        text = row[column_name_text]
-        link = row[column_name_link]
-        if row[column_name_flag].upper()=='RU':
-            color = 'red'
-        else:
-            color = 'blue'
-        custom_icon = DivIcon(
-            icon_size=(10,10),  # Устанавливаем размер иконки
-            icon_anchor=(8,8),  # Центрируем иконку
-            html='<div style="width: 10px; height: 10px; border: 3px solid {color}; '
-                 'border-radius: 50%; background: transparent;"></div>'.format(color=color)
-        )
-        folium.Marker(
-            show=False,
-            location=[x, y],
-            icon=custom_icon,
-            popup='<b>'+ today + '</b> ' + text + '<br>' + f'<div style="width:330px;"><a href="{link}" target="_blank">{link}</a></div>'            
-        ).add_to(map_obj)
+        try:
+            x = row['Latitude']
+            y = row['Longitude']
+            text = row[column_name_text]
+            link = row[column_name_link]
+            if row[column_name_flag].upper()=='RU':
+                color = 'red'
+            else:
+                color = 'blue'
+            custom_icon = DivIcon(
+                icon_size=(10,10),  # Устанавливаем размер иконки
+                icon_anchor=(8,8),  # Центрируем иконку
+                html='<div style="width: 10px; height: 10px; border: 3px solid {color}; '
+                     'border-radius: 50%; background: transparent;"></div>'.format(color=color)
+            )
+            folium.Marker(
+                show=False,
+                location=[x, y],
+                icon=custom_icon,
+                popup='<b>'+ today + '</b> ' + text + '<br>' + f'<div style="width:330px;"><a href="{link}" target="_blank">{link}</a></div>'            
+            ).add_to(map_obj)
+        except:
+            print(f'Warning, {row} is not added')
 
     return map_obj
 
